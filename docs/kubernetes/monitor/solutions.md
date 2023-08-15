@@ -38,50 +38,31 @@
 
 USE: the strategies provided by USE, we can quickly locate common performance problems.
 
-- Utilization
-  - Resource usage, usually expressed as a percentage of a time period, for example, the average memory usage in the last minute is 90%. High usage is often a sign of a system performance bottleneck.
-- Saturation
-
-  - The degree of overloading of resources, tasks that cannot get resources are usually put into the queue, so the queue length or queuing time can be used to measure.
-
-- Errors
-  - The number of error events, which is of particular concern when errors persist and cause performance degradation.
+- `Utilization`: Resource usage, usually expressed as a percentage of a time period, for example, the average memory usage in the last minute is 90%. High usage is often a sign of a system performance bottleneck.
+- `Saturation`: The degree of overloading of resources, tasks that cannot get resources are usually put into the queue, so the queue length or queuing time can be used to measure.
+- `Errors`: The number of error events, which is of particular concern when errors persist and cause performance degradation.
 
 RED: clearly perceive the health of microservice applications and help measure end-user experience issues.
 
-- (Request) Rate
+- `(Request) Rate`: The number of requests processed per second.
 
-  - The number of requests processed per second.
+- `(Request) Errors`: The number of failed requests per second.
 
-- (Request) Errors
-
-  - The number of failed requests per second.
-
-- (Request) Duration
-  - Distribution of request processing times.
+- `(Request) Duration`: Distribution of request processing times.
 
 ## Issues
 
-A solved solution steps for apply the helm chart from ArgoCD:
+Problem:
+
+- [metadata.annotations too long issue](https://github.com/prometheus-community/helm-charts/issues/1500)
+
+Solution steps for apply the helm chart from ArgoCD:
 
 - Apply without _`replace`_ sync options.
 
-- Select _`replace`_ sync option if a sync problem occurred like this:
-
-  - _"one or more objects failed to apply, reason: CustomResourceDefinition.apiextensions.k8s.io "prometheuses.monitoring.coreos.com" is invalid: metadata.annotations: Too long: must have at most 262144 bytes"_
+- Select _`replace`_ sync option if a sync problem occurred like this: _"one or more objects failed to apply, reason: CustomResourceDefinition.apiextensions.k8s.io "prometheuses.monitoring.coreos.com" is invalid: metadata.annotations: Too long: must have at most 262144 bytes"_
 
 - Apply without _`replace`_ sync option again.
-
-Problem:
-
-- [Github issue](https://github.com/prometheus-community/helm-charts/issues/1500)
-
-- One or more objects failed to apply, reason: CustomResourceDefinition.apiextensions.k8s.io "prometheuses.monitoring.coreos.com" is invalid: metadata.annotations: Too long: must have at most 262144 bytes
-
-Solution:
-
-- Find the CRM and have to then do a manual sync and checkmark "replace".
-  <https://github.com/argoproj/argo-cd/issues/820#issuecomment-838544049>
 
 ## Others
 

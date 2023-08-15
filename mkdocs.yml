@@ -32,7 +32,7 @@ nav:
           - Flux: ""
   - Public Cloud:
       - Alibaba Cloud:
-          - Ingress deployment: public-cloud/alicloud_ingress.md
+          - Ingress deployment: public-cloud/alibaba_ingress.md
       - AWS: public-cloud/index.md
       - Azure: public-cloud/index.md
   - Kubernetes:

@@ -72,24 +72,16 @@ A solved solution steps for apply the helm chart from ArgoCD:
 
 - Apply without _`replace`_ sync option again.
 
-Problem details:
+Problem:
 
-- Problem:
+- [Github issue](https://github.com/prometheus-community/helm-charts/issues/1500)
 
-  - one or more objects failed to apply, reason: CustomResourceDefinition.apiextensions.k8s.io "prometheuses.monitoring.coreos.com" is invalid: metadata.annotations: Too long: must have at most 262144 bytes
+- One or more objects failed to apply, reason: CustomResourceDefinition.apiextensions.k8s.io "prometheuses.monitoring.coreos.com" is invalid: metadata.annotations: Too long: must have at most 262144 bytes
 
-- Solution:
-  - Find the CRM and have to then do a manual sync and checkmark "replace".
-    <https://github.com/argoproj/argo-cd/issues/820#issuecomment-838544049>
+Solution:
 
-Others related to this:
-
-- Github issue links:
-  [ISSUE](https://github.com/prometheus-community/helm-charts/issues/1500)
-
-- Workarrount use Kustomzie(please use correct kube-prom-stack version) in kustomization yaml and run command:
-
-- [Verified solution](https://github.com/biosimulations/deployment/commit/1e845d256d5c79dd7cfbf845c499f676f7069331)
+- Find the CRM and have to then do a manual sync and checkmark "replace".
+  <https://github.com/argoproj/argo-cd/issues/820#issuecomment-838544049>
 
 ## Others
 

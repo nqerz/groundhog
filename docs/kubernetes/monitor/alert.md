@@ -1,4 +1,4 @@
-# Alert
+# Alarm
 
 Use webhook to extend alert channel is flexible and easy to expand.
 
@@ -12,16 +12,20 @@ Use webhook to extend alert channel is flexible and easy to expand.
 
 ## Commercial solutions
 
+Products:
+
 - [Pagerduty](https://www.pagerduty.com/)
 - [Opsgien](https://www.atlassian.com/software/opsgenie)
 - [ILert](https://www.ilert.com/)
 
-- Foreign companies use Pagerduty a lot.
-- OPsgien: the advantages and disadvantages of Jira confluence's products are your own.
-- ILert is similar to Pagerduty.
+Personal opinion:
+
+- Pagerduty has a wide range of users.
+- OPsgien: good integrated with Jira, confluence's products.
+- ILert similar to Pagerduty.
 
 ## Opensource solutions
 
 - [Alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/)
 - [Zabbix](https://www.zabbix.com/)
-- PrometheusAlert](https://github.com/feiyu563/PrometheusAlert)
+- [PrometheusAlert](https://github.com/feiyu563/PrometheusAlert)

@@ -1,84 +1,100 @@
-# 监控方案选型（基础设施构建 Kubernetes 之上）
+# Monitoring
 
-## 基于社区的 `Prometheus Operator`
+[Prometheus Opertator](https://github.com/prometheus-operator/prometheus-operator) which is the common solution on Kubernetes, it also support _`Thonas`_, there are a lot of articles to show how to use it, easy to understand the whole stack.
 
-社区的 [Prometheus Opertator](https://github.com/prometheus-operator/prometheus-operator) 算的上是开箱即用的解决方案，同时提供了`Thonas`的方案支持，优点自不用说，自行 google 有很多文章了，简单说点自己使用上不是那么爽的地方:
+## Prerequisites of running it locally
 
-1. 需要具备 `Jsonnet` 的基本知识，有新语法学习的门槛。
-2. 默认生成的 `manifests` 没有按照 `component` 的方式归类，这就不利于入门的学习。
+- Kubernetes or KinD for local testing.
+- Have selected prometheus stack manifests version for example:
 
-#### 使用前需要具备哪些基础:
+  ```yaml
+    apiVersion: kustomize.config.k8s.io/v1beta1
+    kind: Kustomization
 
-1. 理解 `Kubernetes Operator`。
-2. 理解 `Prometheus` 的整套体系。
-3. 如上所属，要有`Jsonnet`的基本知识。
-4. 如果选型 `Thonas` 至少要具备该方案的基本知识。
+    namespace: monitoring
 
-## 阿里云监控基础设施
+    resources:
+    - ./namespace.yaml
 
-`Prometheus` 大规模应用下存储和计算是在做 HA 要考虑的两个方面，基于阿里云的基础设施我尝试过两个产品:
+    helmCharts:
+    - name: kube-prometheus-stack
+        includeCRDs: true
+        releaseName: kube-prometheus-stack
+        version: 46.8.0
+        valuesFile: values.yaml
+        repo: https://prometheus-community.github.io/helm-charts
 
-### 基于阿里云的 `SLS` metric store
+  ```
 
-文章可以参考: [高性能、高可用、免运维-云原生Prometheus方案与实践](https://developer.aliyun.com/article/765358).
+- ArogCD which is very famous GitOps tools to manage Kubernetes deploy. (optional)
 
-### 基于阿里云的 `Arms Prometheus`
-这款产品算是专门针对托管 Kubernetes 集群（当然自建也可以用，这个部分就请移步到其官方文档的建议方式了，这里就不记录了）搭配的监控方案之一，对于最终用户体验上和社区的 `Prometheus Operator`一样，在指标的收集测提供了相同的灵活性，在报警派发方面也提供了Webhook的方式提供可扩展性。
+## Prometheus operator work on alibaba cloud.
 
-#### 优点:
-* 有了部分官方提供的常用的产品指标收集方案组件，基于社区的和基于阿里云CMS的指标收集。
-* 集成了默认的监控 dashboard。
+- Work with `SLS` metric store [HA, Cloud native Prometheus solutions and practies](https://developer.aliyun.com/article/765358).
 
-#### 说说不足:
-* 对标 SLS 这类产品 `Arms Prometheus` 给我的感觉还远没有进入成熟区。
-* 安全和易用性着实有待提高，`Prometheus Console` 有很多让人困惑的菜单，目前也缺少官方SDK/API的支持。
+- `Arms Prometheus` which work out of box on Ack.
 
+## Observability Methods
 
-## 完全自建要考虑哪些点
-监控的整个流程无外乎: 
+- USE: the strategies provided by USE, we can quickly locate common performance problems.
 
-指标收集 -> 存储 -> 计算 -> 触发 -> 分派 
+  - Utilization
+    - Resource usage, usually expressed as a percentage of a time period, for example, the average memory usage in the last minute is 90%. High usage is often a sign of a system performance bottleneck.
+  - Saturation
 
-`Prometheus` 本身的劣势是单点在大规模指标收集上的存储和基于规则的计算是个比较大的挑战，那么首先要解决的是存储的可扩展性和计算的内存使用平衡问题。
+    - The degree of overloading of resources, tasks that cannot get resources are usually put into the queue, so the queue length or queuing time can be used to measure.
 
-存储的方案比较容易 google 到的有: Thonas, InfluxDB，VictoriaMetrics ... (其它能力有限没有研究过了就)
+  - Errors
+    - The number of error events, which is of particular concern when errors persist and cause performance degradation.
 
-计算方面我的解决方案: 指标切片和读写分离在架构上切分，这点`Arms Prometheus`的架构就很有参考意义。
+- RED: clearly perceive the health of microservice applications and help measure end-user experience issues.
 
-!!! note
-    对于运维人手有限，规模不大的团队还是建议优选利用云厂商提供的基础设施，毕竟无论用什么方案都要考虑运维成本。
-    
-    有钱有人当然折腾折腾最能提升能力。
+  - (Request) Rate
 
-## 可观测性监控方法
+    - The number of requests processed per second.
 
-### USE 方法
+  - (Request) Errors
 
-* Utilization 资源使用情况，通常以一个时间段的百分比表示，如最近一分钟内存的平均使用率是 90%。很高的使用率往往是系统性能瓶颈的标志。
+    - The number of failed requests per second.
 
-* Saturation 资源的超载程度，得不到资源的任务通常会被放入队列，因此可用队列长度或排队时间来度量。
+  - (Request) Duration
+    - Distribution of request processing times.
 
-* Errors 错误事件的个数，当错误持续发生从而导致性能下降时需要特别关注。
+## Issues
 
-基于上述指标并结合 USE 提供的策略，我们能快速定位常见的性能问题。
+A solved solution steps for apply the helm chart from ArgoCD:
 
-### RED 方法
+- Apply without _`replace`_ sync options.
 
-* (Request) Rate - 每秒处理的请求数量。
+- Select _`replace`_ sync option if a sync problem occurred like this:
 
-* (Request) Errors - 每秒失败的请求数量。
+  - _"one or more objects failed to apply, reason: CustomResourceDefinition.apiextensions.k8s.io "prometheuses.monitoring.coreos.com" is invalid: metadata.annotations: Too long: must have at most 262144 bytes"_
 
-* (Request) Duration - 请求处理时间的分布。
+- Apply without _`replace`_ sync option again.
 
-上述指标能让我们清楚地感知微服务应用的运行状况，并能帮助衡量终端用户的体验问题。
+Problem details:
 
+- Problem:
 
-## 关键指标定义概念
+  - one or more objects failed to apply, reason: CustomResourceDefinition.apiextensions.k8s.io "prometheuses.monitoring.coreos.com" is invalid: metadata.annotations: Too long: must have at most 262144 bytes
 
-* SLA: 服务级别协议，平台与客户之间关于可衡量指标的协议。 
-* SLI: 服务水平指标，平台正常运行各项指标的实际衡量，是平台服务的真是反应。SLI 必须达到或超过与客户的 SLA 承诺。
-* SLO: 服务水平目标，是服务由 SLI 测量出的目标值或目标范围。SLO是平台 DevOps 团队为了满足 SLA 给自己制定的需要达到的目标。
+- Solution:
+  - Find the CRM and have to then do a manual sync and checkmark "replace".
+    <https://github.com/argoproj/argo-cd/issues/820#issuecomment-838544049>
 
-## 参考
+Others related to this:
 
-[Kubernetes 应用发布与监控联动](https://developer.aliyun.com/article/715849)
+- Github issue links:
+  [ISSUE](https://github.com/prometheus-community/helm-charts/issues/1500)
+
+- Workarrount use Kustomzie(please use correct kube-prom-stack version) in kustomization yaml and run command:
+
+- [Verified solution](https://github.com/biosimulations/deployment/commit/1e845d256d5c79dd7cfbf845c499f676f7069331)
+
+- [Prometheus Operator Design](https://prometheus-operator.dev/docs/operator/design/)
+
+- [Prometheus Operator Concept](https://github.com/prometheus-operator/prometheus-operator)
+
+## Others
+
+[Kubernetes application publishing and monitoring linkage](https://developer.aliyun.com/article/715849)

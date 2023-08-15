@@ -15,8 +15,7 @@ Client certificate file path: <leave blank>
 Client certificate key path: <leave blank>
 ```
 
-
-``` bash
+```bash
 # Test connection
 $ jfrog rt ping
 # or
@@ -26,6 +25,7 @@ $ jfrog rt ping --server-id=<SERVER_ID>
 ```
 
 ## File upload
+
 ```bash
 $ jfrog rt u "(*).tgz" <YOUR_TARGET_REPOSITORY_NAME> --server-id=<SERVER_ID>
 ```

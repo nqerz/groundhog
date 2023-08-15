@@ -1,7 +1,7 @@
 site_name: Groundhog all the way north
 theme:
   name: material
-  language: zh
+  language: en
   palette:
     primary: black
   features:
